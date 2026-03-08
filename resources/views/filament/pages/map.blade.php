@@ -119,8 +119,7 @@
                 </div>
             </div>
 
-            <div x-show="@js(!empty($googleMapsKey))" x-cloak>
-            <div wire:ignore>
+            <div x-show="@js(!empty($googleMapsKey))" x-cloak wire:ignore>
             <script>
             // Load Google Maps API
             (function() {
@@ -621,5 +620,4 @@
         }, true);
             </script>
             </div>
-        </div>
         </div></x-filament-panels::page>
