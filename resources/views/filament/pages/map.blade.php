@@ -127,7 +127,9 @@
             @endif
 
             @if(!empty($googleMapsKey))
-            <script x-ignore>
+            @once
+            <div wire:ignore>
+            <script>
             // Load Google Maps API
             (function() {
                 const apiKey = @js($googleMapsKey);
@@ -157,8 +159,8 @@
                 };
                 document.head.appendChild(script);
             })();
-        </script>
-        <script x-ignore>
+            </script>
+            <script>
         let map;
         let markers = {};
         let polylines = {};
@@ -626,6 +628,8 @@
             }
         }, true);
             </script>
+            </div>
+            @endonce
             @endif
         </div>
     </x-filament-panels::page>
