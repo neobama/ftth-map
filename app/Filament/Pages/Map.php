@@ -27,6 +27,11 @@ class Map extends Page
     public $cableFrom = null;
     public $cableTo = null;
 
+    public function getGoogleMapsKey()
+    {
+        return config('services.google_maps.api_key', '');
+    }
+
     public function getRouters()
     {
         return Router::all()->map(function ($router) {

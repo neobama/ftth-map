@@ -104,11 +104,7 @@
 
         <!-- Map Container -->
         <div id="map" class="w-full h-full">
-            @php
-                $googleMapsKey = config('services.google_maps.api_key', '');
-            @endphp
-            
-            <div x-show="!@js($googleMapsKey)" x-cloak class="flex items-center justify-center h-full">
+            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="flex items-center justify-center h-full">
                 <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md">
                     <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
                     <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
@@ -118,11 +114,11 @@
                 </div>
             </div>
 
-            <div x-show="@js(!empty($googleMapsKey))" x-cloak wire:ignore>
+            <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak wire:ignore>
             <script>
             // Load Google Maps API
             (function() {
-                const apiKey = @js($googleMapsKey);
+                const apiKey = @js($this->getGoogleMapsKey());
                 if (!apiKey) {
                     console.error('Google Maps API key is missing');
                     return;
