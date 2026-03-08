@@ -1,6 +1,6 @@
 <x-filament-panels::page><div class="relative w-full h-screen" style="height: calc(100vh - 4rem);">
         <!-- Toolbar -->
-        <div class="absolute top-4 left-4 z-10 flex gap-2 bg-gray-900/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
+        <div class="absolute top-4 left-4 z-50 flex gap-2 bg-gray-900/95 backdrop-blur-sm rounded-lg p-2 shadow-xl border border-gray-700">
             <button 
                 wire:click="setMode('add-pop')" 
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
@@ -38,12 +38,12 @@
         </div>
 
         <!-- Banner untuk mode penempatan -->
-        <div x-show="$wire.placementMode" x-cloak class="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+        <div x-show="$wire.placementMode" x-cloak class="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl animate-pulse border border-blue-400">
             <span class="font-semibold" x-text="$wire.placementModeText"></span>
         </div>
 
         <!-- ODP Detail Panel -->
-        <div x-show="$wire.selectedOdp" x-cloak class="absolute top-4 right-4 z-10 w-80 bg-gray-900 rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <div x-show="$wire.selectedOdp" x-cloak class="absolute top-4 right-4 z-50 w-80 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto border border-gray-700">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-white">ODP Details</h3>
                     <button wire:click="closeOdpPanel" class="text-gray-400 hover:text-white">
@@ -103,9 +103,9 @@
         </div>
 
         <!-- Map Container -->
-        <div id="map" class="w-full h-full">
-            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="flex items-center justify-center h-full">
-                <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md">
+        <div id="map" class="absolute inset-0 w-full h-full z-0">
+            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10">
+                <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md shadow-xl">
                     <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
                     <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
                     <p class="text-xs text-yellow-700">
@@ -138,7 +138,7 @@
                     };
                     document.head.appendChild(script);
                 })();
-            ">
+            " class="absolute inset-0">
             </div>
         </div>
     </div>
