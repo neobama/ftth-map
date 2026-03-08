@@ -4,28 +4,28 @@
             <button 
                 wire:click="setMode('add-pop')" 
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
-                :class="{ 'ring-2 ring-green-400': mode === 'add-pop' }"
+                :class="{ 'ring-2 ring-green-400': $wire.mode === 'add-pop' }"
             >
                 Add POP
             </button>
             <button 
                 wire:click="setMode('add-odp')" 
                 class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors font-medium"
-                :class="{ 'ring-2 ring-blue-400': mode === 'add-odp' }"
+                :class="{ 'ring-2 ring-blue-400': $wire.mode === 'add-odp' }"
             >
                 Add ODP
             </button>
             <button 
                 wire:click="setMode('add-cable')" 
                 class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors font-medium"
-                :class="{ 'ring-2 ring-purple-400': mode === 'add-cable' }"
+                :class="{ 'ring-2 ring-purple-400': $wire.mode === 'add-cable' }"
             >
                 Add Kabel
             </button>
             <button 
                 wire:click="setMode('add-tiang')" 
                 class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors font-medium"
-                :class="{ 'ring-2 ring-amber-400': mode === 'add-tiang' }"
+                :class="{ 'ring-2 ring-amber-400': $wire.mode === 'add-tiang' }"
             >
                 Add Tiang
             </button>
@@ -115,14 +115,7 @@
             </div>
 
             <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak wire:ignore>
-            </div>
-        </div>
-    </div>
-</x-filament-panels::page>
-
-@push('scripts')
-@if(!empty($this->getGoogleMapsKey()))
-<script>
+                <script>
 // Load Google Maps API
 (function() {
     const apiKey = @js($this->getGoogleMapsKey());
@@ -152,8 +145,8 @@
     };
     document.head.appendChild(script);
 })();
-</script>
-<script>
+                </script>
+                <script>
         let map;
         let markers = {};
         let polylines = {};
@@ -620,6 +613,8 @@
                 }
             }
         }, true);
-</script>
-@endif
-@endpush
+                </script>
+            </div>
+        </div>
+    </div>
+</x-filament-panels::page>
