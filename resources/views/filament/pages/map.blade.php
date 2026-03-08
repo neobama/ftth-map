@@ -43,8 +43,7 @@
         </div>
 
         <!-- ODP Detail Panel -->
-        <template x-if="$wire.selectedOdp">
-            <div class="absolute top-4 right-4 z-10 w-80 bg-gray-900 rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <div x-show="$wire.selectedOdp" x-cloak class="absolute top-4 right-4 z-10 w-80 bg-gray-900 rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-white">ODP Details</h3>
                     <button wire:click="closeOdpPanel" class="text-gray-400 hover:text-white">
@@ -102,7 +101,7 @@
                     </button>
                 </div>
             </div>
-        </template>
+        </div>
 
         <!-- Map Container -->
         <div id="map" class="w-full h-full">
@@ -110,19 +109,17 @@
                 $googleMapsKey = config('services.google_maps.api_key', '');
             @endphp
             
-            @if(empty($googleMapsKey))
-                <div class="flex items-center justify-center h-full">
-                    <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md">
-                        <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
-                        <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
-                        <p class="text-xs text-yellow-700">
-                            Contoh: <code class="bg-yellow-200 px-2 py-1 rounded">GOOGLE_MAPS_API_KEY=your_api_key_here</code>
-                        </p>
-                    </div>
+            <div x-show="!@js($googleMapsKey)" x-cloak class="flex items-center justify-center h-full">
+                <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md">
+                    <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
+                    <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
+                    <p class="text-xs text-yellow-700">
+                        Contoh: <code class="bg-yellow-200 px-2 py-1 rounded">GOOGLE_MAPS_API_KEY=your_api_key_here</code>
+                    </p>
                 </div>
-            @endif
+            </div>
 
-            @if(!empty($googleMapsKey))
+            <div x-show="@js(!empty($googleMapsKey))" x-cloak>
             <div wire:ignore>
             <script>
             // Load Google Maps API
@@ -624,5 +621,5 @@
         }, true);
             </script>
             </div>
-            @endif
+        </div>
         </div></x-filament-panels::page>
