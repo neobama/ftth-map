@@ -115,38 +115,45 @@
             </div>
 
             <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak wire:ignore>
-            <script>
-            // Load Google Maps API
-            (function() {
-                const apiKey = @js($this->getGoogleMapsKey());
-                if (!apiKey) {
-                    console.error('Google Maps API key is missing');
-                    return;
-                }
-                
-                // Check if already loaded
-                if (window.google && window.google.maps) {
-                    if (typeof window.initGoogleMap === 'function') {
-                        window.initGoogleMap();
-                    }
-                    return;
-                }
-                
-                const script = document.createElement('script');
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,drawing,places&callback=initGoogleMap`;
-                script.async = true;
-                script.defer = true;
-                script.onerror = function() {
-                    console.error('Failed to load Google Maps API');
-                    const mapElement = document.getElementById('map');
-                    if (mapElement) {
-                        mapElement.innerHTML = '<div class="flex items-center justify-center h-full"><div class="p-6 bg-red-100 border-2 border-red-400 text-red-800 rounded-lg"><p class="font-bold">Error: Google Maps API gagal dimuat</p><p class="text-sm mt-2">Periksa API key dan koneksi internet</p></div></div>';
-                    }
-                };
-                document.head.appendChild(script);
-            })();
-            </script>
-            <script>
+            </div>
+        </div>
+    </div>
+</x-filament-panels::page>
+
+@push('scripts')
+@if(!empty($this->getGoogleMapsKey()))
+<script>
+// Load Google Maps API
+(function() {
+    const apiKey = @js($this->getGoogleMapsKey());
+    if (!apiKey) {
+        console.error('Google Maps API key is missing');
+        return;
+    }
+    
+    // Check if already loaded
+    if (window.google && window.google.maps) {
+        if (typeof window.initGoogleMap === 'function') {
+            window.initGoogleMap();
+        }
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,drawing,places&callback=initGoogleMap`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = function() {
+        console.error('Failed to load Google Maps API');
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.innerHTML = '<div class="flex items-center justify-center h-full"><div class="p-6 bg-red-100 border-2 border-red-400 text-red-800 rounded-lg"><p class="font-bold">Error: Google Maps API gagal dimuat</p><p class="text-sm mt-2">Periksa API key dan koneksi internet</p></div></div>';
+        }
+    };
+    document.head.appendChild(script);
+})();
+</script>
+<script>
         let map;
         let markers = {};
         let polylines = {};
@@ -613,6 +620,6 @@
                 }
             }
         }, true);
-            </script>
-            </div>
-        </div></x-filament-panels::page>
+</script>
+@endif
+@endpush
