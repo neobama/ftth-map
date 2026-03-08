@@ -109,11 +109,37 @@
         @endif
 
         <!-- Map Container -->
-        <div id="map" class="w-full h-full"></div>
+        <div id="map" class="w-full h-full">
+            @php
+                $googleMapsKey = config('services.google_maps.api_key', '');
+            @endphp
+            
+            @if(empty($googleMapsKey))
+                <div class="flex items-center justify-center h-full">
+                    <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md">
+                        <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
+                        <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
+                        <p class="text-xs text-yellow-700">
+                            Contoh: <code class="bg-yellow-200 px-2 py-1 rounded">GOOGLE_MAPS_API_KEY=your_api_key_here</code>
+                        </p>
+                    </div>
+                </div>
+            @endif
+        </div>
     </div>
 
     @push('scripts')
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.api_key') }}&libraries=geometry,drawing,places"></script>
+    @if(!empty($googleMapsKey))
+    <script>
+        (function() {
+            const apiKey = @js($googleMapsKey);
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,drawing,places&callback=initGoogleMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        })();
+    </script>
     <script>
         let map;
         let markers = {};
@@ -125,8 +151,21 @@
         let manualWaypoints = [];
         let directionsService;
         let directionsRenderer;
+        let mapInitialized = false;
+
+        // Callback function untuk Google Maps API
+        window.initGoogleMap = function() {
+            if (mapInitialized) return;
+            mapInitialized = true;
+            initMap();
+        };
 
         function initMap() {
+            const mapElement = document.getElementById('map');
+            if (!mapElement) {
+                console.error('Map element not found');
+                return;
+            }
             map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: -6.2088, lng: 106.8456 }, // Jakarta default
                 zoom: 13,
@@ -225,42 +264,82 @@
         }
 
         function loadRouters() {
+            if (typeof Livewire === 'undefined' || !@this) {
+                console.warn('Livewire not available');
+                return;
+            }
             @this.call('getRouters').then(routers => {
-                routers.forEach(router => {
-                    createRouterMarker(router);
-                });
+                if (routers && Array.isArray(routers)) {
+                    routers.forEach(router => {
+                        createRouterMarker(router);
+                    });
+                }
+            }).catch(err => {
+                console.error('Error loading routers:', err);
             });
         }
 
         function loadOdps() {
+            if (typeof Livewire === 'undefined' || !@this) {
+                console.warn('Livewire not available');
+                return;
+            }
             @this.call('getOdps').then(odps => {
-                odps.forEach(odp => {
-                    createOdpMarker(odp);
-                });
+                if (odps && Array.isArray(odps)) {
+                    odps.forEach(odp => {
+                        createOdpMarker(odp);
+                    });
+                }
+            }).catch(err => {
+                console.error('Error loading ODPs:', err);
             });
         }
 
         function loadCables() {
+            if (typeof Livewire === 'undefined' || !@this) {
+                console.warn('Livewire not available');
+                return;
+            }
             @this.call('getCables').then(cables => {
-                cables.forEach(cable => {
-                    createCablePolyline(cable);
-                });
+                if (cables && Array.isArray(cables)) {
+                    cables.forEach(cable => {
+                        createCablePolyline(cable);
+                    });
+                }
+            }).catch(err => {
+                console.error('Error loading cables:', err);
             });
         }
 
         function loadClients() {
+            if (typeof Livewire === 'undefined' || !@this) {
+                console.warn('Livewire not available');
+                return;
+            }
             @this.call('getClients').then(clients => {
-                clients.forEach(client => {
-                    createClientMarker(client);
-                });
+                if (clients && Array.isArray(clients)) {
+                    clients.forEach(client => {
+                        createClientMarker(client);
+                    });
+                }
+            }).catch(err => {
+                console.error('Error loading clients:', err);
             });
         }
 
         function loadTiangs() {
+            if (typeof Livewire === 'undefined' || !@this) {
+                console.warn('Livewire not available');
+                return;
+            }
             @this.call('getTiangs').then(tiangs => {
-                tiangs.forEach(tiang => {
-                    createTiangMarker(tiang);
-                });
+                if (tiangs && Array.isArray(tiangs)) {
+                    tiangs.forEach(tiang => {
+                        createTiangMarker(tiang);
+                    });
+                }
+            }).catch(err => {
+                console.error('Error loading tiangs:', err);
             });
         }
 
@@ -316,7 +395,11 @@
             });
 
             marker.addListener('click', () => {
-                @this.call('selectOdp', odp.id);
+                if (typeof Livewire !== 'undefined' && @this) {
+                    @this.call('selectOdp', odp.id).catch(err => {
+                        console.error('Error selecting ODP:', err);
+                    });
+                }
             });
 
             markers[`odp_${odp.id}`] = marker;
@@ -453,7 +536,11 @@
 
             // Make cable clickable for editing
             polyline.addListener('click', () => {
-                @this.call('editCable', cable.id);
+                if (typeof Livewire !== 'undefined' && @this) {
+                    @this.call('editCable', cable.id).catch(err => {
+                        console.error('Error editing cable:', err);
+                    });
+                }
             });
         }
 
@@ -484,19 +571,24 @@
         }
 
         function handleMapClick(event) {
+            if (!event || !event.latLng) return;
             const lat = event.latLng.lat();
             const lng = event.latLng.lng();
 
-            @this.call('handleMapClick', lat, lng);
+            if (typeof Livewire !== 'undefined' && @this) {
+                @this.call('handleMapClick', lat, lng).catch(err => {
+                    console.error('Error handling map click:', err);
+                });
+            }
         }
 
         // Listen to Livewire events
         window.addEventListener('map-mode-changed', (e) => {
+            if (!map) return;
             currentMode = e.detail.mode;
             if (currentMode === 'add-pop' || currentMode === 'add-odp' || currentMode === 'add-client') {
                 map.setOptions({ cursor: 'crosshair' });
             } else if (currentMode === 'add-cable') {
-                // Enable selection mode
                 map.setOptions({ cursor: 'pointer' });
             } else if (currentMode === 'add-tiang') {
                 map.setOptions({ cursor: 'crosshair' });
@@ -505,8 +597,17 @@
             }
         });
 
-        // Initialize map when page loads
-        window.addEventListener('load', initMap);
+        // Error handling jika Google Maps gagal load
+        window.addEventListener('error', function(e) {
+            if (e.target && e.target.src && e.target.src.includes('maps.googleapis.com')) {
+                console.error('Google Maps API failed to load. Check your API key.');
+                const mapElement = document.getElementById('map');
+                if (mapElement) {
+                    mapElement.innerHTML = '<div class="p-4 bg-red-100 border border-red-400 text-red-700 rounded"><p class="font-bold">Error loading Google Maps</p><p class="text-sm mt-2">Please check your GOOGLE_MAPS_API_KEY in .env file</p></div>';
+                }
+            }
+        }, true);
     </script>
+    @endif
     @endpush
 </x-filament-panels::page>
