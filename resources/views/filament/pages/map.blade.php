@@ -100,7 +100,6 @@
                         Add Client
                     </button>
                 </div>
-            </div>
         </div>
 
         <!-- Map Container -->
