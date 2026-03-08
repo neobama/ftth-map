@@ -114,7 +114,8 @@
                 </div>
             </div>
 
-            <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak wire:ignore>
+            <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak wire:ignore.self>
+                <div wire:ignore>
                 <script>
 // Load Google Maps API
 (function() {
@@ -614,6 +615,7 @@
             }
         }, true);
                 </script>
+                </div>
             </div>
         </div>
     </div>
