@@ -127,7 +127,6 @@
             @endif
 
             @if(!empty($googleMapsKey))
-            @once
             <div wire:ignore>
             <script>
             // Load Google Maps API
@@ -629,7 +628,6 @@
         }, true);
             </script>
             </div>
-            @endonce
             @endif
         </div>
-    </x-filament-panels::page>
+</x-filament-panels::page>
