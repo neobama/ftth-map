@@ -38,74 +38,71 @@
         </div>
 
         <!-- Banner untuk mode penempatan -->
-        @if($placementMode)
-        <div class="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
-            <span class="font-semibold">{{ $placementModeText }}</span>
+        <div x-show="$wire.placementMode" x-cloak class="absolute top-20 left-1/2 transform -translate-x-1/2 z-10 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+            <span class="font-semibold" x-text="$wire.placementModeText"></span>
         </div>
-        @endif
 
         <!-- ODP Detail Panel -->
-        @if($selectedOdp)
-        <div class="absolute top-4 right-4 z-10 w-80 bg-gray-900 rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-white">ODP Details</h3>
-                <button wire:click="closeOdpPanel" class="text-gray-400 hover:text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="space-y-4 text-white">
-                <div>
-                    <p class="text-sm text-gray-400">Nama</p>
-                    <p class="font-semibold">{{ $selectedOdp['name'] }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-400">Router Parent</p>
-                    <p class="font-semibold">{{ $selectedOdp['router_name'] }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-400">Kapasitas</p>
-                    <p class="font-semibold">{{ $selectedOdp['used_ports'] }} / {{ $selectedOdp['port_capacity'] }} port</p>
-                    <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
-                        <div class="h-2 rounded-full {{ $selectedOdp['color'] === 'red' ? 'bg-red-500' : ($selectedOdp['color'] === 'yellow' ? 'bg-yellow-500' : 'bg-blue-500') }}" 
-                             style="width: {{ $selectedOdp['capacity_percentage'] }}%"></div>
-                    </div>
+        <template x-if="$wire.selectedOdp">
+            <div class="absolute top-4 right-4 z-10 w-80 bg-gray-900 rounded-lg shadow-xl p-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-white">ODP Details</h3>
+                    <button wire:click="closeOdpPanel" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
                 
-                <div>
-                    <p class="text-sm text-gray-400 mb-2">Kabel Terhubung</p>
-                    <div class="space-y-1">
-                        @foreach($selectedOdp['cables'] ?? [] as $cable)
-                        <div class="bg-gray-800 p-2 rounded text-sm">{{ $cable['name'] }}</div>
-                        @endforeach
+                <div class="space-y-4 text-white" x-data="{ odp: $wire.selectedOdp }">
+                    <div>
+                        <p class="text-sm text-gray-400">Nama</p>
+                        <p class="font-semibold" x-text="odp?.name"></p>
                     </div>
-                </div>
-                
-                <div>
-                    <p class="text-sm text-gray-400 mb-2">Clients</p>
-                    <div class="space-y-1">
-                        @foreach($selectedOdp['clients'] ?? [] as $client)
-                        <div class="bg-gray-800 p-2 rounded text-sm flex justify-between">
-                            <span>{{ $client['name'] }}</span>
-                            <span class="{{ $client['is_online'] ? 'text-green-400' : 'text-red-400' }}">
-                                {{ $client['is_online'] ? 'Online' : 'Offline' }}
-                            </span>
+                    <div>
+                        <p class="text-sm text-gray-400">Router Parent</p>
+                        <p class="font-semibold" x-text="odp?.router_name"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Kapasitas</p>
+                        <p class="font-semibold" x-text="`${odp?.used_ports} / ${odp?.port_capacity} port`"></p>
+                        <div class="w-full bg-gray-700 rounded-full h-2 mt-2">
+                            <div class="h-2 rounded-full" 
+                                 :class="odp?.color === 'red' ? 'bg-red-500' : (odp?.color === 'yellow' ? 'bg-yellow-500' : 'bg-blue-500')"
+                                 :style="`width: ${odp?.capacity_percentage}%`"></div>
                         </div>
-                        @endforeach
                     </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-400 mb-2">Kabel Terhubung</p>
+                        <div class="space-y-1">
+                            <template x-for="cable in odp?.cables || []" :key="cable.id">
+                                <div class="bg-gray-800 p-2 rounded text-sm" x-text="cable.name"></div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-400 mb-2">Clients</p>
+                        <div class="space-y-1">
+                            <template x-for="client in odp?.clients || []" :key="client.id">
+                                <div class="bg-gray-800 p-2 rounded text-sm flex justify-between">
+                                    <span x-text="client.name"></span>
+                                    <span :class="client.is_online ? 'text-green-400' : 'text-red-400'" x-text="client.is_online ? 'Online' : 'Offline'"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        wire:click="startAddClient" 
+                        class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
+                    >
+                        Add Client
+                    </button>
                 </div>
-                
-                <button 
-                    wire:click="startAddClient" 
-                    class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
-                >
-                    Add Client
-                </button>
             </div>
-        </div>
-        @endif
+        </template>
 
         <!-- Map Container -->
         <div id="map" class="w-full h-full">
