@@ -1,5 +1,4 @@
-<x-filament-panels::page>
-    <div class="relative w-full h-screen" style="height: calc(100vh - 4rem);">
+<x-filament-panels::page><div class="relative w-full h-screen" style="height: calc(100vh - 4rem);">
         <!-- Toolbar -->
         <div class="absolute top-4 left-4 z-10 flex gap-2 bg-gray-900/90 backdrop-blur-sm rounded-lg p-2 shadow-lg">
             <button 
@@ -629,5 +628,4 @@
             </script>
             </div>
             @endif
-        </div>
-</x-filament-panels::page>
+        </div></x-filament-panels::page>
