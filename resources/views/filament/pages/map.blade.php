@@ -102,10 +102,10 @@
                 </div>
         </div>
 
-        <!-- Map Container - Always visible -->
-        <div id="map" class="absolute inset-0 w-full h-full z-0" style="min-height: 100%;">
+        <!-- Map Container - Always visible, never hidden -->
+        <div id="map" class="absolute inset-0 w-full h-full z-0" style="min-height: 100%; position: absolute !important; display: block !important; visibility: visible !important;">
             <!-- Error message jika API key tidak ada -->
-            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10 bg-gray-900">
+            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10 bg-gray-900" style="position: absolute !important;">
                 <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md shadow-xl">
                     <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
                     <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
@@ -114,62 +114,68 @@
                     </p>
                 </div>
             </div>
+        </div>
 
-            <!-- Map initialization - Always runs, no conditional rendering -->
-            <div x-data="{ 
-                init() {
-                    const apiKey = @js($this->getGoogleMapsKey());
-                    if (!apiKey) {
-                        return;
-                    }
-                    
-                    // Store Livewire component reference using $wire from Alpine
-                    const updateLivewireRef = () => {
-                        if (typeof Livewire !== 'undefined' && $wire) {
-                            window.livewireComponent = $wire;
-                        } else if (typeof Livewire !== 'undefined') {
-                            // Fallback: try to find component by name
-                            const components = Livewire.all();
-                            if (components && components.length > 0) {
-                                window.livewireComponent = components[0];
-                            }
+        <!-- Map initialization - Outside map container, always runs -->
+        <div x-data="{ 
+            init() {
+                const apiKey = @js($this->getGoogleMapsKey());
+                if (!apiKey) {
+                    return;
+                }
+                
+                // Store Livewire component reference using $wire from Alpine
+                const updateLivewireRef = () => {
+                    if (typeof Livewire !== 'undefined' && $wire) {
+                        window.livewireComponent = $wire;
+                    } else if (typeof Livewire !== 'undefined') {
+                        // Fallback: try to find component by name
+                        const components = Livewire.all();
+                        if (components && components.length > 0) {
+                            window.livewireComponent = components[0];
                         }
-                    };
-                    
-                    // Update reference immediately
-                    updateLivewireRef();
-                    
-                    // Update reference on Livewire events
-                    if (typeof Livewire !== 'undefined') {
-                        Livewire.hook('morph.updated', () => {
-                            updateLivewireRef();
-                        });
                     }
-                    
-                    // Load external map.js file only once
-                    if (!window.mapJsLoaded) {
-                        window.mapJsLoaded = true;
-                        const script = document.createElement('script');
-                        script.src = '/js/map.js';
-                        script.onload = function() {
-                            // Update reference again after script loads
-                            updateLivewireRef();
-                            // Load Google Maps API after map.js is loaded
-                            if (typeof loadGoogleMapsAPI === 'function') {
-                                loadGoogleMapsAPI(apiKey);
-                            }
-                        };
-                        document.head.appendChild(script);
-                    } else {
-                        // If map.js already loaded, update reference and initialize if needed
+                };
+                
+                // Update reference immediately
+                updateLivewireRef();
+                
+                // Update reference on Livewire events
+                if (typeof Livewire !== 'undefined') {
+                    Livewire.hook('morph.updated', () => {
                         updateLivewireRef();
-                        if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
+                        // Ensure map container is still visible after morph
+                        const mapElement = document.getElementById('map');
+                        if (mapElement) {
+                            mapElement.style.display = 'block';
+                            mapElement.style.visibility = 'visible';
+                            mapElement.style.position = 'absolute';
+                        }
+                    });
+                }
+                
+                // Load external map.js file only once
+                if (!window.mapJsLoaded) {
+                    window.mapJsLoaded = true;
+                    const script = document.createElement('script');
+                    script.src = '/js/map.js';
+                    script.onload = function() {
+                        // Update reference again after script loads
+                        updateLivewireRef();
+                        // Load Google Maps API after map.js is loaded
+                        if (typeof loadGoogleMapsAPI === 'function') {
                             loadGoogleMapsAPI(apiKey);
                         }
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    // If map.js already loaded, update reference and initialize if needed
+                    updateLivewireRef();
+                    if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
+                        loadGoogleMapsAPI(apiKey);
                     }
                 }
-            }" class="absolute inset-0 w-full h-full pointer-events-none">
-            </div>
-        </div>
+            }
+        }" style="display: none;"></div>
     </div>
 </x-filament-panels::page>
