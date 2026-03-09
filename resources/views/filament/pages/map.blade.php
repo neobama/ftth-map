@@ -103,7 +103,7 @@
         </div>
 
         <!-- Map Container - Always visible, never hidden -->
-        <div id="map" class="absolute inset-0 w-full h-full z-0" style="min-height: 100%; position: absolute !important; display: block !important; visibility: visible !important;">
+        <div id="map" class="absolute inset-0 w-full h-full z-0" style="min-height: 100%; position: absolute !important; display: block !important; visibility: visible !important; background-color: #1a1a1a;">
             <!-- Error message jika API key tidak ada -->
             <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10 bg-gray-900" style="position: absolute !important;">
                 <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md shadow-xl">
@@ -114,21 +114,34 @@
                     </p>
                 </div>
             </div>
-            
-            <!-- Map initialization - Always runs immediately -->
-            <div x-data x-init="
-                (function() {
+        </div>
+
+        <!-- Map initialization script - Always runs, separate from map container -->
+        <script>
+            (function() {
+                // Wait for DOM and Alpine to be ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initMapScript);
+                } else {
+                    // DOM already loaded, wait for Alpine
+                    if (typeof Alpine !== 'undefined') {
+                        Alpine.nextTick(initMapScript);
+                    } else {
+                        window.addEventListener('alpine:init', initMapScript);
+                        // Fallback if Alpine never loads
+                        setTimeout(initMapScript, 1000);
+                    }
+                }
+                
+                function initMapScript() {
                     const apiKey = @js($this->getGoogleMapsKey());
                     if (!apiKey) {
                         return;
                     }
                     
-                    // Store Livewire component reference using $wire from Alpine
+                    // Store Livewire component reference
                     const updateLivewireRef = () => {
-                        if (typeof Livewire !== 'undefined' && $wire) {
-                            window.livewireComponent = $wire;
-                        } else if (typeof Livewire !== 'undefined') {
-                            // Fallback: try to find component by name
+                        if (typeof Livewire !== 'undefined') {
                             const components = Livewire.all();
                             if (components && components.length > 0) {
                                 window.livewireComponent = components[0];
@@ -174,8 +187,8 @@
                             loadGoogleMapsAPI(apiKey);
                         }
                     }
-                })();
-            " style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
-        </div>
+                }
+            })();
+        </script>
     </div>
 </x-filament-panels::page>
