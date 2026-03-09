@@ -1,6 +1,6 @@
 <x-filament-panels::page><div class="relative w-full h-screen" style="height: calc(100vh - 4rem);">
         <!-- Toolbar -->
-        <div class="absolute top-4 left-4 z-50 flex gap-2 bg-gray-900/95 backdrop-blur-sm rounded-lg p-2 shadow-xl border border-gray-700">
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 bg-gray-900/95 backdrop-blur-sm rounded-lg p-2 shadow-xl border border-gray-700">
             <button 
                 wire:click="setMode('add-pop')" 
                 class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Banner untuk mode penempatan -->
-        <div x-show="$wire.placementMode" x-cloak class="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl animate-pulse border border-blue-400">
+        <div x-show="$wire.placementMode" x-cloak class="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl animate-pulse border border-blue-400">
             <span class="font-semibold" x-text="$wire.placementModeText"></span>
         </div>
 
@@ -102,9 +102,10 @@
                 </div>
         </div>
 
-        <!-- Map Container -->
+        <!-- Map Container - Always visible -->
         <div id="map" class="absolute inset-0 w-full h-full z-0">
-            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10">
+            <!-- Error message jika API key tidak ada -->
+            <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10 bg-gray-900">
                 <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md shadow-xl">
                     <p class="font-bold text-lg mb-2">⚠️ Google Maps API Key belum dikonfigurasi!</p>
                     <p class="text-sm mb-4">Tambahkan GOOGLE_MAPS_API_KEY di file .env</p>
@@ -114,11 +115,11 @@
                 </div>
             </div>
 
-            <div x-show="@js(!empty($this->getGoogleMapsKey()))" x-cloak x-data x-init="
+            <!-- Map initialization - Always render, no x-cloak -->
+            <div x-data x-init="
                 (function() {
                     const apiKey = @js($this->getGoogleMapsKey());
                     if (!apiKey) {
-                        console.error('Google Maps API key is missing');
                         return;
                     }
                     
@@ -127,18 +128,26 @@
                         window.livewireComponent = $wire;
                     }
                     
-                    // Load external map.js file
-                    const script = document.createElement('script');
-                    script.src = '/js/map.js';
-                    script.onload = function() {
-                        // Load Google Maps API after map.js is loaded
-                        if (typeof loadGoogleMapsAPI === 'function') {
+                    // Load external map.js file only once
+                    if (!window.mapJsLoaded) {
+                        window.mapJsLoaded = true;
+                        const script = document.createElement('script');
+                        script.src = '/js/map.js';
+                        script.onload = function() {
+                            // Load Google Maps API after map.js is loaded
+                            if (typeof loadGoogleMapsAPI === 'function') {
+                                loadGoogleMapsAPI(apiKey);
+                            }
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        // If map.js already loaded, just initialize map if not already done
+                        if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
                             loadGoogleMapsAPI(apiKey);
                         }
-                    };
-                    document.head.appendChild(script);
+                    }
                 })();
-            " class="absolute inset-0">
+            " class="absolute inset-0 w-full h-full">
             </div>
         </div>
     </div>
