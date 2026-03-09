@@ -114,68 +114,68 @@
                     </p>
                 </div>
             </div>
-        </div>
-
-        <!-- Map initialization - Outside map container, always runs -->
-        <div x-data="{ 
-            init() {
-                const apiKey = @js($this->getGoogleMapsKey());
-                if (!apiKey) {
-                    return;
-                }
-                
-                // Store Livewire component reference using $wire from Alpine
-                const updateLivewireRef = () => {
-                    if (typeof Livewire !== 'undefined' && $wire) {
-                        window.livewireComponent = $wire;
-                    } else if (typeof Livewire !== 'undefined') {
-                        // Fallback: try to find component by name
-                        const components = Livewire.all();
-                        if (components && components.length > 0) {
-                            window.livewireComponent = components[0];
-                        }
+            
+            <!-- Map initialization - Inside map container, always runs -->
+            <div x-data="{ 
+                init() {
+                    const apiKey = @js($this->getGoogleMapsKey());
+                    if (!apiKey) {
+                        return;
                     }
-                };
-                
-                // Update reference immediately
-                updateLivewireRef();
-                
-                // Update reference on Livewire events
-                if (typeof Livewire !== 'undefined') {
-                    Livewire.hook('morph.updated', () => {
-                        updateLivewireRef();
-                        // Ensure map container is still visible after morph
-                        const mapElement = document.getElementById('map');
-                        if (mapElement) {
-                            mapElement.style.display = 'block';
-                            mapElement.style.visibility = 'visible';
-                            mapElement.style.position = 'absolute';
-                        }
-                    });
-                }
-                
-                // Load external map.js file only once
-                if (!window.mapJsLoaded) {
-                    window.mapJsLoaded = true;
-                    const script = document.createElement('script');
-                    script.src = '/js/map.js';
-                    script.onload = function() {
-                        // Update reference again after script loads
-                        updateLivewireRef();
-                        // Load Google Maps API after map.js is loaded
-                        if (typeof loadGoogleMapsAPI === 'function') {
-                            loadGoogleMapsAPI(apiKey);
+                    
+                    // Store Livewire component reference using $wire from Alpine
+                    const updateLivewireRef = () => {
+                        if (typeof Livewire !== 'undefined' && $wire) {
+                            window.livewireComponent = $wire;
+                        } else if (typeof Livewire !== 'undefined') {
+                            // Fallback: try to find component by name
+                            const components = Livewire.all();
+                            if (components && components.length > 0) {
+                                window.livewireComponent = components[0];
+                            }
                         }
                     };
-                    document.head.appendChild(script);
-                } else {
-                    // If map.js already loaded, update reference and initialize if needed
+                    
+                    // Update reference immediately
                     updateLivewireRef();
-                    if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
-                        loadGoogleMapsAPI(apiKey);
+                    
+                    // Update reference on Livewire events
+                    if (typeof Livewire !== 'undefined') {
+                        Livewire.hook('morph.updated', () => {
+                            updateLivewireRef();
+                            // Ensure map container is still visible after morph
+                            const mapElement = document.getElementById('map');
+                            if (mapElement) {
+                                mapElement.style.display = 'block';
+                                mapElement.style.visibility = 'visible';
+                                mapElement.style.position = 'absolute';
+                            }
+                        });
+                    }
+                    
+                    // Load external map.js file only once
+                    if (!window.mapJsLoaded) {
+                        window.mapJsLoaded = true;
+                        const script = document.createElement('script');
+                        script.src = '/js/map.js';
+                        script.onload = function() {
+                            // Update reference again after script loads
+                            updateLivewireRef();
+                            // Load Google Maps API after map.js is loaded
+                            if (typeof loadGoogleMapsAPI === 'function') {
+                                loadGoogleMapsAPI(apiKey);
+                            }
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        // If map.js already loaded, update reference and initialize if needed
+                        updateLivewireRef();
+                        if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
+                            loadGoogleMapsAPI(apiKey);
+                        }
                     }
                 }
-            }
-        }" style="display: none;"></div>
+            }" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+        </div>
     </div>
 </x-filament-panels::page>
