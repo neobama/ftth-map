@@ -13,6 +13,22 @@ let directionsService;
 let directionsRenderer;
 let mapInitialized = false;
 
+// Helper function to get Livewire component
+function getLivewireComponent() {
+    if (window.livewireComponent && typeof window.livewireComponent.call === 'function') {
+        return window.livewireComponent;
+    }
+    
+    if (typeof Livewire !== 'undefined') {
+        const components = Livewire.all();
+        if (components && components.length > 0) {
+            return components[0];
+        }
+    }
+    
+    return null;
+}
+
 // Load Google Maps API
 function loadGoogleMapsAPI(apiKey) {
     if (!apiKey) {
@@ -153,11 +169,13 @@ function initMap() {
 }
 
 function loadRouters() {
-    if (typeof Livewire === 'undefined' || !window.livewireComponent) {
-        console.warn('Livewire not available');
+    const component = getLivewireComponent();
+    if (!component) {
+        console.warn('Livewire component not available');
         return;
     }
-    window.livewireComponent.call('getRouters').then(routers => {
+    
+    component.call('getRouters').then(routers => {
         if (routers && Array.isArray(routers)) {
             routers.forEach(router => {
                 createRouterMarker(router);
@@ -169,11 +187,13 @@ function loadRouters() {
 }
 
 function loadOdps() {
-    if (typeof Livewire === 'undefined' || !window.livewireComponent) {
-        console.warn('Livewire not available');
+    const component = getLivewireComponent();
+    if (!component) {
+        console.warn('Livewire component not available');
         return;
     }
-    window.livewireComponent.call('getOdps').then(odps => {
+    
+    component.call('getOdps').then(odps => {
         if (odps && Array.isArray(odps)) {
             odps.forEach(odp => {
                 createOdpMarker(odp);
@@ -185,11 +205,13 @@ function loadOdps() {
 }
 
 function loadCables() {
-    if (typeof Livewire === 'undefined' || !window.livewireComponent) {
-        console.warn('Livewire not available');
+    const component = getLivewireComponent();
+    if (!component) {
+        console.warn('Livewire component not available');
         return;
     }
-    window.livewireComponent.call('getCables').then(cables => {
+    
+    component.call('getCables').then(cables => {
         if (cables && Array.isArray(cables)) {
             cables.forEach(cable => {
                 createCablePolyline(cable);
@@ -201,11 +223,13 @@ function loadCables() {
 }
 
 function loadClients() {
-    if (typeof Livewire === 'undefined' || !window.livewireComponent) {
-        console.warn('Livewire not available');
+    const component = getLivewireComponent();
+    if (!component) {
+        console.warn('Livewire component not available');
         return;
     }
-    window.livewireComponent.call('getClients').then(clients => {
+    
+    component.call('getClients').then(clients => {
         if (clients && Array.isArray(clients)) {
             clients.forEach(client => {
                 createClientMarker(client);
@@ -217,11 +241,13 @@ function loadClients() {
 }
 
 function loadTiangs() {
-    if (typeof Livewire === 'undefined' || !window.livewireComponent) {
-        console.warn('Livewire not available');
+    const component = getLivewireComponent();
+    if (!component) {
+        console.warn('Livewire component not available');
         return;
     }
-    window.livewireComponent.call('getTiangs').then(tiangs => {
+    
+    component.call('getTiangs').then(tiangs => {
         if (tiangs && Array.isArray(tiangs)) {
             tiangs.forEach(tiang => {
                 createTiangMarker(tiang);
@@ -284,8 +310,9 @@ function createOdpMarker(odp) {
     });
 
     marker.addListener('click', () => {
-        if (typeof Livewire !== 'undefined' && window.livewireComponent) {
-            window.livewireComponent.call('selectOdp', odp.id).catch(err => {
+        const component = getLivewireComponent();
+        if (component) {
+            component.call('selectOdp', odp.id).catch(err => {
                 console.error('Error selecting ODP:', err);
             });
         }
@@ -425,8 +452,9 @@ function createCablePolyline(cable) {
 
     // Make cable clickable for editing
     polyline.addListener('click', () => {
-        if (typeof Livewire !== 'undefined' && window.livewireComponent) {
-            window.livewireComponent.call('editCable', cable.id).catch(err => {
+        const component = getLivewireComponent();
+        if (component) {
+            component.call('editCable', cable.id).catch(err => {
                 console.error('Error editing cable:', err);
             });
         }
@@ -464,8 +492,9 @@ function handleMapClick(event) {
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
 
-    if (typeof Livewire !== 'undefined' && window.livewireComponent) {
-        window.livewireComponent.call('handleMapClick', lat, lng).catch(err => {
+    const component = getLivewireComponent();
+    if (component) {
+        component.call('handleMapClick', lat, lng).catch(err => {
             console.error('Error handling map click:', err);
         });
     }

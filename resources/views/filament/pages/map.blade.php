@@ -116,16 +116,34 @@
             </div>
 
             <!-- Map initialization - Always runs, no conditional rendering -->
-            <div x-data x-init="
-                (function() {
+            <div x-data="{ 
+                init() {
                     const apiKey = @js($this->getGoogleMapsKey());
                     if (!apiKey) {
                         return;
                     }
                     
-                    // Store Livewire component reference
-                    if (typeof Livewire !== 'undefined' && $wire) {
-                        window.livewireComponent = $wire;
+                    // Store Livewire component reference using $wire from Alpine
+                    const updateLivewireRef = () => {
+                        if (typeof Livewire !== 'undefined' && $wire) {
+                            window.livewireComponent = $wire;
+                        } else if (typeof Livewire !== 'undefined') {
+                            // Fallback: try to find component by name
+                            const components = Livewire.all();
+                            if (components && components.length > 0) {
+                                window.livewireComponent = components[0];
+                            }
+                        }
+                    };
+                    
+                    // Update reference immediately
+                    updateLivewireRef();
+                    
+                    // Update reference on Livewire events
+                    if (typeof Livewire !== 'undefined') {
+                        Livewire.hook('morph.updated', () => {
+                            updateLivewireRef();
+                        });
                     }
                     
                     // Load external map.js file only once
@@ -134,6 +152,8 @@
                         const script = document.createElement('script');
                         script.src = '/js/map.js';
                         script.onload = function() {
+                            // Update reference again after script loads
+                            updateLivewireRef();
                             // Load Google Maps API after map.js is loaded
                             if (typeof loadGoogleMapsAPI === 'function') {
                                 loadGoogleMapsAPI(apiKey);
@@ -141,13 +161,14 @@
                         };
                         document.head.appendChild(script);
                     } else {
-                        // If map.js already loaded, just initialize map if not already done
+                        // If map.js already loaded, update reference and initialize if needed
+                        updateLivewireRef();
                         if (typeof loadGoogleMapsAPI === 'function' && !window.mapInitialized) {
                             loadGoogleMapsAPI(apiKey);
                         }
                     }
-                })();
-            " class="absolute inset-0 w-full h-full pointer-events-none">
+                }
+            }" class="absolute inset-0 w-full h-full pointer-events-none">
             </div>
         </div>
     </div>
