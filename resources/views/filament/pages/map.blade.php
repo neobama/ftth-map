@@ -1,44 +1,44 @@
 <x-filament-panels::page><div class="relative w-full h-screen" style="height: calc(100vh - 4rem);">
         <!-- Toolbar -->
-        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 bg-gray-900/95 backdrop-blur-sm rounded-lg p-2 shadow-xl border border-gray-700">
+        <div class="absolute top-4 left-4 z-50 flex flex-wrap gap-2 bg-gray-900/95 backdrop-blur-sm rounded-lg p-2 shadow-xl border border-gray-700 max-w-2xl">
             <button 
                 wire:click="setMode('add-pop')" 
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors font-medium"
+                class="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded transition-colors font-medium whitespace-nowrap"
                 :class="{ 'ring-2 ring-green-400': $wire.mode === 'add-pop' }"
             >
                 Add POP
             </button>
             <button 
                 wire:click="setMode('add-odp')" 
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors font-medium"
+                class="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors font-medium whitespace-nowrap"
                 :class="{ 'ring-2 ring-blue-400': $wire.mode === 'add-odp' }"
             >
                 Add ODP
             </button>
             <button 
                 wire:click="setMode('add-cable')" 
-                class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors font-medium"
+                class="px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors font-medium whitespace-nowrap"
                 :class="{ 'ring-2 ring-purple-400': $wire.mode === 'add-cable' }"
             >
                 Add Kabel
             </button>
             <button 
                 wire:click="setMode('add-tiang')" 
-                class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors font-medium"
+                class="px-3 py-1.5 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded transition-colors font-medium whitespace-nowrap"
                 :class="{ 'ring-2 ring-amber-400': $wire.mode === 'add-tiang' }"
             >
                 Add Tiang
             </button>
             <button 
                 wire:click="setMode(null)" 
-                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors font-medium"
+                class="px-3 py-1.5 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors font-medium whitespace-nowrap"
             >
                 Cancel
             </button>
         </div>
 
         <!-- Banner untuk mode penempatan -->
-        <div x-show="$wire.placementMode" x-cloak class="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl animate-pulse border border-blue-400">
+        <div x-show="$wire.placementMode" x-cloak class="absolute top-16 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-xl animate-pulse border border-blue-400">
             <span class="font-semibold" x-text="$wire.placementModeText"></span>
         </div>
 
@@ -103,7 +103,7 @@
         </div>
 
         <!-- Map Container - Always visible -->
-        <div id="map" class="absolute inset-0 w-full h-full z-0">
+        <div id="map" class="absolute inset-0 w-full h-full z-0" style="min-height: 100%;">
             <!-- Error message jika API key tidak ada -->
             <div x-show="!@js($this->getGoogleMapsKey())" x-cloak class="absolute inset-0 flex items-center justify-center z-10 bg-gray-900">
                 <div class="p-6 bg-yellow-100 border-2 border-yellow-400 text-yellow-800 rounded-lg max-w-md shadow-xl">
@@ -115,7 +115,7 @@
                 </div>
             </div>
 
-            <!-- Map initialization - Always render, no x-cloak -->
+            <!-- Map initialization - Always runs, no conditional rendering -->
             <div x-data x-init="
                 (function() {
                     const apiKey = @js($this->getGoogleMapsKey());
@@ -147,7 +147,7 @@
                         }
                     }
                 })();
-            " class="absolute inset-0 w-full h-full">
+            " class="absolute inset-0 w-full h-full pointer-events-none">
             </div>
         </div>
     </div>
