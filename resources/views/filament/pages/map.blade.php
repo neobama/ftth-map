@@ -115,9 +115,9 @@
                 </div>
             </div>
             
-            <!-- Map initialization - Inside map container, always runs -->
-            <div x-data="{ 
-                init() {
+            <!-- Map initialization - Always runs immediately -->
+            <div x-data x-init="
+                (function() {
                     const apiKey = @js($this->getGoogleMapsKey());
                     if (!apiKey) {
                         return;
@@ -174,8 +174,8 @@
                             loadGoogleMapsAPI(apiKey);
                         }
                     }
-                }
-            }" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+                })();
+            " style="position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
         </div>
     </div>
 </x-filament-panels::page>
